@@ -74,7 +74,7 @@
 </head>
 <body>
     <div id="main">
-        <h1>Search For Jumia Products</h1>
+        <h1>Search For Alkosto Products</h1>
         <form method="GET">
             <div>
                 <label for="product"></label>
@@ -90,6 +90,10 @@
                     <th>Name</th>
                     <th>Price</th>
                     <th>DiscountPrice</th>
+                    <th>Storage</th>
+                    <th>processor</th>
+                    <th>ram</th>
+                    <th>screen_size</th>
                     <th>Image</th>
                     <th>Rating</th>
                 </tr>
@@ -101,6 +105,10 @@
                     <td>{{product_info.name}}</td>
                     <td>{{ product_info.old_price }}</td>
                     <td>{{product_info.discount_price}}</td>
+                    <td>{{product_info.storage}}</td>
+                    <td>{{product_info.processor}}</td>
+                    <td>{{product_info.ram}}</td>
+                    <td>{{product_info.screen_size}}</td>
                     <td><img src="{{product_info.image_url}}" alt="{{product_info.name}} Image"></td>
                     <td>{{product_info.stars}}</td>
                 </tr>

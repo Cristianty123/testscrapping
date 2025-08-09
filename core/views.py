@@ -59,7 +59,7 @@ def home(request):
         print(f"\n🔍 Iniciando scraping para: {product}")
 
         # Obtener HTML y clicks
-        html_content, total_clicks = get_content_selenium(product, clicks=None)
+        html_content, total_clicks = get_content_selenium(product, clicks=1)
 
         # Parsear
         soup = BeautifulSoup(html_content, 'html.parser')
@@ -69,18 +69,53 @@ def home(request):
         for item in product_items:
             name_tag = item.find('h3', class_=['product__item__top__title', 'js-algolia-product-click',
                                                'js-algolia-product-title'])
-            discount_price_tag = item.find('span', class_='price')
-            image_tag = item.find('div', class_='product__item__information__image').find('img') if item.find('div',
-                                                                                                              class_='product__item__information__image') else None
+            stars_tag = item.find('span', class_='averageNumber')  # Rating
+            old_price_tag = item.find('p', class_='product__price--discounts__old')  # Precio tachado
+            discount_price_tag = item.find('span', class_='price')  # Precio actual
+            img_c_div = item.find('div', class_='product__item__information__image js-algolia-product-click')
+            image_tag = img_c_div.find('img') if img_c_div else None
 
-            if name_tag and discount_price_tag and image_tag:
+            # Extraer características técnicas
+            specs_container = item.find('ul', class_='product__item__information__key-features--list js-key-list')
+
+            # Inicializar valores por defecto
+            storage = "Not specified"
+            processor = "Not specified"
+            ram = "Not specified"
+            screen_size = "Not specified"
+
+            if specs_container:
+                spec_items = specs_container.find_all('li', class_='item')
+                for spec in spec_items:
+                    key = spec.find('div', class_='item--key').get_text(strip=True) if spec.find('div',
+                                                                                                class_='item--key') else None
+                    value = spec.find('div', class_='item--value').get_text(strip=True) if spec.find('div',
+                                                                                                    class_='item--value') else None
+
+                    if key and value:
+                        if 'Capacidad de Disco' in key:
+                            storage = value
+                        elif 'Procesador' in key:
+                            processor = value
+                        elif 'Memoria RAM' in key:
+                            ram = value
+                        elif 'Tamaño Pantalla' in key:
+                            screen_size = value
+
+            if name_tag and discount_price_tag and image_tag and stars_tag and old_price_tag:
                 product_counter += 1
                 product_info = {
                     'id': product_counter,
                     'name': name_tag.get_text(strip=True),
-                    'price': discount_price_tag.get_text(strip=True),
+                    'stars': stars_tag.get_text(strip=True) if stars_tag else "Sin calificación",
+                    'old_price': old_price_tag.get_text(strip=True) if old_price_tag else "Sin descuento",
+                    'discount_price': discount_price_tag.get_text(strip=True),
                     'image_url': f"https://www.alkosto.com{image_tag['src']}" if image_tag['src'].startswith('/') else
-                    image_tag['src']
+                    image_tag['src'],
+                    'storage': storage,
+                    'processor': processor,
+                    'ram': ram,
+                    'screen_size': screen_size
                 }
                 product_info_list.append(product_info)
 
