@@ -77,30 +77,18 @@ def home(request):
 
             # Extraer características técnicas
             specs_container = item.find('ul', class_='product__item__information__key-features--list js-key-list')
-
-            # Inicializar valores por defecto
-            storage = "Not specified"
-            processor = "Not specified"
-            ram = "Not specified"
-            screen_size = "Not specified"
+            specifications = {}
 
             if specs_container:
                 spec_items = specs_container.find_all('li', class_='item')
                 for spec in spec_items:
                     key = spec.find('div', class_='item--key').get_text(strip=True) if spec.find('div',
-                                                                                                class_='item--key') else None
+                                                                                                 class_='item--key') else None
                     value = spec.find('div', class_='item--value').get_text(strip=True) if spec.find('div',
-                                                                                                    class_='item--value') else None
+                                                                                                     class_='item--value') else None
 
                     if key and value:
-                        if 'Capacidad de Disco' in key:
-                            storage = value
-                        elif 'Procesador' in key:
-                            processor = value
-                        elif 'Memoria RAM' in key:
-                            ram = value
-                        elif 'Tamaño Pantalla' in key:
-                            screen_size = value
+                        specifications[key] = value
 
             if name_tag and discount_price_tag and image_tag and stars_tag and old_price_tag:
                 product_counter += 1
@@ -112,10 +100,7 @@ def home(request):
                     'discount_price': discount_price_tag.get_text(strip=True),
                     'image_url': f"https://www.alkosto.com{image_tag['src']}" if image_tag['src'].startswith('/') else
                     image_tag['src'],
-                    'storage': storage,
-                    'processor': processor,
-                    'ram': ram,
-                    'screen_size': screen_size
+                    'specifications': specifications
                 }
                 product_info_list.append(product_info)
 
