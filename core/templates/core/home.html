@@ -25,6 +25,25 @@
             color: rgb(159, 70, 10);
             text-align: center;
         }
+
+        .error-message {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #d32f2f;
+        }
+
+        .success-message {
+            color: #2e7d32;
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #2e7d32;
+        }
+
         input[type='text'] {
             margin-bottom: 10px;
             border-radius: 5px;
@@ -45,7 +64,6 @@
         }
         input[type='submit']:hover {
             background-color: rgb(122, 60, 19);
-
         }
         form {
             margin-top: 30px;
@@ -82,26 +100,40 @@
             </div>
             <input type="submit" value="Submit">
         </form>
-       {% if product_info_list %}
+
+        {% if error_message %}
+        <div class="error-message">
+            <strong>Error:</strong> {{ error_message }}
+        </div>
+        {% endif %}
+
+        {% if product_info_list %}
+        <div class="success-message">
+            Se encontraron {{ product_info_list|length }} productos
+        </div>
+
         <table class="product-table">
             <thead>
                 <tr>
-                    <th>Number</th>
                     <th>Name</th>
+                    <th>Brand</th>
                     <th>Price</th>
                     <th>DiscountPrice</th>
+                    <th>discountPercent</th>
                     <th>Specifications</th>
                     <th>Image</th>
                     <th>Rating</th>
+                    <th>URL</th>
                 </tr>
             </thead>
             <tbody>
                 {% for product_info in product_info_list %}
                 <tr>
-                    <td>{{product_info.id}}</td>
                     <td>{{product_info.name}}</td>
+                    <td>{{product_info.brand}}</td>
                     <td>{{ product_info.old_price }}</td>
                     <td>{{product_info.discount_price}}</td>
+                    <td>{{product_info.discount_percent}}</td>
                     <td>
                         <ul style="list-style-type: none; padding: 0; margin: 0;">
                             {% for key, value in product_info.specifications.items %}
@@ -111,16 +143,28 @@
                             {% endfor %}
                         </ul>
                     </td>
-                    <td><img src="{{product_info.image_url}}" alt="{{product_info.name}} Image"></td>
+                    <td>
+                        {% if product_info.image_url %}
+                        <img src="{{product_info.image_url}}" alt="{{product_info.name}} Image">
+                        {% else %}
+                        Sin imagen
+                        {% endif %}
+                    </td>
                     <td>{{product_info.stars}}</td>
+                    <td>
+                        <a href="{{ product_info.url }}" target="_blank">
+                        {{ product_info.url|slice:":60" }}...
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% elif request.GET.product and not error_message %}
+        <div class="error-message">
+            No se encontraron productos para "{{ request.GET.product }}"
+        </div>
         {% endif %}
-
-
-
     </div>
 </body>
 </html>
